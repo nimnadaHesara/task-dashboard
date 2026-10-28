@@ -31,6 +31,8 @@ const defaultContent = {
   phone: '+94 77 123 4567',
   email: 'hello@smarttech.example',
   address: 'Innovation Park, Colombo, Sri Lanka',
+  heroVideo:
+    'https://videos.pexels.com/video-files/3861969/3861969-hd_1920_1080_25fps.mp4',
 };
 
 const services = [
@@ -145,13 +147,13 @@ function App() {
               </div>
               <div className="hero-proof"><div className="avatar-stack"><span>AK</span><span>RM</span><span>JL</span></div><div><strong>Trusted by forward-thinking teams</strong><small>Across 14 countries and counting</small></div></div>
             </div>
-            <div className="hero-visual" aria-label="Smart manufacturing illustration">
-              <div className="visual-glow" />
-              <div className="circuit-board">
-                <div className="board-lines line-a" /><div className="board-lines line-b" /><div className="board-lines line-c" />
-                <div className="chip chip-main"><span>ST</span></div>
-                <div className="chip chip-small" /><div className="chip chip-small chip-two" />
-                <div className="board-pins">{Array.from({ length: 18 }).map((_, i) => <i key={i} />)}</div>
+            <div className="hero-visual hero-video-visual" aria-label="Engineering excellence video">
+              <div className="hero-video-frame">
+                <video autoPlay muted loop playsInline poster="/logo512.png">
+                  <source src={content.heroVideo} type="video/mp4" />
+                </video>
+                <div className="hero-video-shade" />
+                <div className="video-caption"><span className="video-live-dot" /> Engineering excellence in motion</div>
               </div>
               <div className="floating-card card-quality"><CheckCircleIcon /><span><b>Quality first</b><small>ISO 9001 process</small></span></div>
               <div className="floating-card card-signal"><BoltIcon /><span><b>Connected</b><small>Built for tomorrow</small></span></div>
@@ -199,7 +201,7 @@ function AdminPanel({ content, setContent, onClose }) {
   const [saved, setSaved] = useState(false);
   const update = (key, value) => setDraft({ ...draft, [key]: value });
   const save = () => { setContent(draft); setSaved(true); setTimeout(() => setSaved(false), 2000); };
-  return <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}><div className="admin-panel"><div className="admin-header"><div><div className="eyebrow">Content manager</div><h2>SmartTech admin</h2></div><button className="modal-close" onClick={onClose}><XMarkIcon /></button></div><div className="admin-note"><LockClosedIcon /><span>This lightweight editor saves content in this browser. For multi-user editing, connect these fields to a hosted database such as Supabase or Firebase.</span></div><div className="admin-form"><label>Company name<input value={draft.companyName} onChange={(e) => update('companyName', e.target.value)} /></label><label>Hero eyebrow<input value={draft.eyebrow} onChange={(e) => update('eyebrow', e.target.value)} /></label><label>Hero headline<input value={draft.headline} onChange={(e) => update('headline', e.target.value)} /></label><label>Hero introduction<textarea rows="3" value={draft.intro} onChange={(e) => update('intro', e.target.value)} /></label><div className="admin-two-col"><label>Phone<input value={draft.phone} onChange={(e) => update('phone', e.target.value)} /></label><label>Email<input value={draft.email} onChange={(e) => update('email', e.target.value)} /></label></div><label>Address<input value={draft.address} onChange={(e) => update('address', e.target.value)} /></label></div><div className="admin-actions"><button className="button button-quiet" onClick={onClose}>Cancel</button><button className="button button-accent" onClick={save}>{saved ? 'Saved ✓' : 'Save changes'} </button></div></div></div>;
+  return <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}><div className="admin-panel"><div className="admin-header"><div><div className="eyebrow">Content manager</div><h2>SmartTech admin</h2></div><button className="modal-close" onClick={onClose}><XMarkIcon /></button></div><div className="admin-note"><LockClosedIcon /><span>This lightweight editor saves content in this browser. For multi-user editing, connect these fields to a hosted database such as Supabase or Firebase.</span></div><div className="admin-form"><label>Company name<input value={draft.companyName} onChange={(e) => update('companyName', e.target.value)} /></label><label>Hero eyebrow<input value={draft.eyebrow} onChange={(e) => update('eyebrow', e.target.value)} /></label><label>Hero headline<input value={draft.headline} onChange={(e) => update('headline', e.target.value)} /></label>  <label>Hero introduction<textarea rows="3" value={draft.intro} onChange={(e) => update('intro', e.target.value)} /></label><label>Hero video URL<input type="url" value={draft.heroVideo} onChange={(e) => update('heroVideo', e.target.value)} placeholder="https://.../engineering-video.mp4" /></label><div className="admin-two-col"><label>Phone<input value={draft.phone} onChange={(e) => update('phone', e.target.value)} /></label><label>Email<input value={draft.email} onChange={(e) => update('email', e.target.value)} /></label></div><label>Address<input value={draft.address} onChange={(e) => update('address', e.target.value)} /></label></div><div className="admin-actions"><button className="button button-quiet" onClick={onClose}>Cancel</button><button className="button button-accent" onClick={save}>{saved ? 'Saved ✓' : 'Save changes'} </button></div></div></div>;
 }
 
 export default App;
