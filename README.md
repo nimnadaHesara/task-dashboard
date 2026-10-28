@@ -5,8 +5,9 @@ SmartTech is a responsive technology solutions company website for electronic ma
 ## What is included
 
 - Responsive marketing site with hero, services, process, company story, contact, and footer sections.
+- Hero section with muted, looping engineering video and an “Engineering excellence in motion” caption.
 - Contact enquiry modal with client-side validation.
-- Built-in **Admin** content manager (lock icon in the header) for company name, hero copy, contact details, and address.
+- Built-in **Admin** content manager (lock icon in the header) for company name, hero copy, hero video URL, contact details, and address.
 - Content is persisted in browser `localStorage`, so the static site remains free to host on GitHub Pages.
 - Existing GitHub Actions workflow builds and deploys the Vite output to GitHub Pages on pushes to `main`.
 
