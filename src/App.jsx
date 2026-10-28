@@ -154,6 +154,11 @@ function App() {
                 </video>
                 <div className="hero-video-shade" />
                 <div className="video-caption"><span className="video-live-dot" /> Engineering excellence in motion</div>
+                <div className="hero-capabilities">
+                  <span><CpuChipIcon /> CNC + PCB</span>
+                  <span><HomeModernIcon /> Smart home</span>
+                  <span><GlobeAltIcon /> IT systems</span>
+                </div>
               </div>
               <div className="floating-card card-quality"><CheckCircleIcon /><span><b>Quality first</b><small>ISO 9001 process</small></span></div>
               <div className="floating-card card-signal"><BoltIcon /><span><b>Connected</b><small>Built for tomorrow</small></span></div>
