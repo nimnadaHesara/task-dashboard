@@ -73,6 +73,27 @@ const stats = [
   ['24/7', 'technical support'],
 ];
 
+const deviceIconForType = (type) => {
+  if (type === 'Security') return ShieldCheckIcon;
+  if (type === 'Climate') return BoltIcon;
+  return SparklesIcon;
+};
+
+const normalizeDevices = (items = []) =>
+  items.map(({ icon: _savedIcon, ...device }) => ({
+    ...device,
+    icon: deviceIconForType(device.type),
+  }));
+
+const readStoredAccounts = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem('smarttech-accounts') || '[]');
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+};
+
 function Logo({ dark = false }) {
   return (
     <a className="brand" href="#top" aria-label="SmartTech home">
@@ -200,7 +221,7 @@ function App() {
 }
 
 function SmartHomeDashboard({ onExit }) {
-  const [accounts, setAccounts] = useState(() => JSON.parse(localStorage.getItem('smarttech-accounts') || '[]'));
+  const [accounts, setAccounts] = useState(readStoredAccounts);
   const [account, setAccount] = useState(null);
   const [authMode, setAuthMode] = useState('signin');
   const [authError, setAuthError] = useState('');
@@ -237,19 +258,22 @@ function SmartHomeDashboard({ onExit }) {
       setDevices(starterDevices);
       return;
     }
-    const found = accounts.find((item) => item.email === email && item.password === authForm.password);
+    const currentAccounts = readStoredAccounts();
+    const found = currentAccounts.find((item) => item.email === email && item.password === authForm.password);
     if (!found) {
       setAuthError('We could not match that email and password.');
       return;
     }
+    setAccounts(currentAccounts);
     setAccount(found);
-    setDevices(found.devices || starterDevices);
+    setDevices(normalizeDevices(found.devices || starterDevices));
   };
 
   const persistDevices = (nextDevices) => {
     setDevices(nextDevices);
     if (!account) return;
-    const nextAccounts = accounts.map((item) => item.id === account.id ? { ...item, devices: nextDevices } : item);
+    const storedDevices = nextDevices.map(({ icon: _icon, ...device }) => device);
+    const nextAccounts = accounts.map((item) => item.id === account.id ? { ...item, devices: storedDevices } : item);
     setAccounts(nextAccounts);
     setAccount({ ...account, devices: nextDevices });
     localStorage.setItem('smarttech-accounts', JSON.stringify(nextAccounts));
