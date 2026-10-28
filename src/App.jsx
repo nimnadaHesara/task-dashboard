@@ -120,7 +120,7 @@ function App() {
             <button onClick={() => scrollTo('approach')}>Our approach</button>
             <button onClick={() => scrollTo('about')}>About us</button>
             <button onClick={() => scrollTo('contact')}>Contact</button>
-            <button onClick={() => setDashboardOpen(true)}>Smart home</button>
+            <button onClick={() => setDashboardOpen(true)}><HomeModernIcon /> SmartHome login</button>
             <button className="mobile-contact" onClick={() => setContactOpen(true)}>Start a project <ArrowRightIcon /></button>
           </nav>
           <div className="nav-actions">
@@ -145,6 +145,7 @@ function App() {
               <p>{content.intro}</p>
               <div className="hero-buttons">
                 <button className="button button-accent" onClick={() => setContactOpen(true)}>Talk to our team <ArrowRightIcon /></button>
+                <button className="button button-outline" onClick={() => setDashboardOpen(true)}><HomeModernIcon /> SmartHome login</button>
                 <button className="text-button" onClick={() => scrollTo('services')}><span className="play-circle"><PlayIcon /></span> Explore our services</button>
               </div>
               <div className="hero-proof"><div className="avatar-stack"><span>AK</span><span>RM</span><span>JL</span></div><div><strong>Trusted by forward-thinking teams</strong><small>Across 14 countries and counting</small></div></div>
