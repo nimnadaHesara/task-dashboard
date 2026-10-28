@@ -1,105 +1,39 @@
-# Task Dashboard
+# SmartTech
 
-A task management application that allows users to create, organize, and filter tasks using a modern, responsive UI built with React.
+SmartTech is a responsive technology solutions company website for electronic manufacturing, smart home systems, industrial automation, and PCB manufacturing.
 
-> **Note:** This application is intended for demonstration purposes only and is not meant for production use.
+## What is included
 
-## Features
+- Responsive marketing site with hero, services, process, company story, contact, and footer sections.
+- Contact enquiry modal with client-side validation.
+- Built-in **Admin** content manager (lock icon in the header) for company name, hero copy, contact details, and address.
+- Content is persisted in browser `localStorage`, so the static site remains free to host on GitHub Pages.
+- Existing GitHub Actions workflow builds and deploys the Vite output to GitHub Pages on pushes to `main`.
 
-- **Task Management**: Create, complete, and delete tasks
-- **Task Tags**: Organize tasks with customizable tags
-- **Task Lists**: Create multiple lists with custom filters
-- **List Filters**: Filter tasks by tags or completion status
-- **Animations**: Smooth transitions and animations using Framer Motion
-- **Responsive Design**: Works on desktop and mobile devices
+## Run locally
 
-## Technology Stack
+```bash
+npm install
+npm start
+```
 
-- **React**: Modern React with functional components and hooks
-- **Tailwind CSS**: Utility-first CSS framework for styling
-- **Framer Motion**: Animation library for React
-- **Vite**: Fast, modern build tool and development server
-- **Vitest**: Testing framework compatible with Vite
+Open `http://localhost:3000`.
 
-## Getting Started
+## Production checks
 
-### Prerequisites
+```bash
+npm run build
+npm test
+```
 
-- Node.js (v18+)
-- npm (v10+)
+## GitHub Pages hosting
 
-### Installation
+1. Push the repository to the GitHub account that should own the site.
+2. In **Settings → Pages**, choose **GitHub Actions** as the source.
+3. Push to `main`; `.github/workflows/attest-and-deploy.yml` will build and deploy the site.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/task-dashboard.git
-   cd task-dashboard
-   ```
+GitHub Pages is a free static host. To move maintenance to another GitHub account, transfer the repository from **Settings → General → Transfer ownership**, or fork it into the new account and enable Pages there. The new account must also have permission to change the repository’s Actions and Pages settings.
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Admin and database note
 
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-
-4. Open [http://localhost:3000](http://localhost:3000) to view the app
-
-### Available Scripts
-
-- `npm start` - Start the development server
-- `npm start:hydrated` - Start the development server with data hydration enabled
-- `npm run build` - Build for production
-- `npm run build:hydrated` - Build for production with data hydration enabled
-- `npm run build:clean` - Build for production with data hydration explicitly disabled
-- `npm run preview` - Preview the production build locally
-- `npm run preview:hydrated` - Preview the production build with data hydration enabled
-- `npm test` - Run tests with Vitest
-
-### Data Hydration
-
-The application supports pre-populating the app with sample data through an optional hydration process:
-
-- Sample data is defined in `src/data/initialData.json`
-- Hydration can be enabled/disabled using the `VITE_ENABLE_DATA_HYDRATION` environment variable
-- Use the convenience scripts for development with hydration:
-  - `npm run start:hydrated` - Development with sample data
-  - `npm run build:hydrated` - Production build with sample data
-  - `npm run build:clean` - Production build without sample data
-- GitHub Actions deployment automatically enables hydration for the production build
-
-## Architecture
-
-### State Management
-
-The application uses React Context for state management:
-
-- **TaskContext**: Manages tasks state and operations (add, toggle, delete)
-- **TagContext**: Manages tags and their relationships with tasks
-- **ListContext**: Manages task lists and filtering logic
-
-### UI Components
-
-The application features several key components:
-- **TaskList**: Renders a list of tasks
-- **TaskItem**: Renders an individual task
-- **TaskBoard**: Manages multiple task lists
-- **TagManager**: Interface for creating and managing tags
-- **GlobalTaskForm**: Form for creating new tasks
-- **ListAddTask**: Form for adding tasks to specific lists
-- **TaskListConfig**: Interface for configuring task lists
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+The included editor is intentionally browser-local so it works without paid infrastructure or exposed credentials. It is not a shared multi-user CMS: each browser has its own saved values. For shared editing, authentication, enquiries, and a real database, connect the admin form to a hosted backend such as Supabase or Firebase and protect it with GitHub/OAuth authentication.
