@@ -98,6 +98,7 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [sent, setSent] = useState(false);
+  const [dashboardOpen, setDashboardOpen] = useState(false);
 
   useEffect(() => {
     document.title = `${content.companyName} — Connected technology, built better`;
@@ -119,6 +120,7 @@ function App() {
             <button onClick={() => scrollTo('approach')}>Our approach</button>
             <button onClick={() => scrollTo('about')}>About us</button>
             <button onClick={() => scrollTo('contact')}>Contact</button>
+            <button onClick={() => setDashboardOpen(true)}>Smart home</button>
             <button className="mobile-contact" onClick={() => setContactOpen(true)}>Start a project <ArrowRightIcon /></button>
           </nav>
           <div className="nav-actions">
@@ -191,8 +193,85 @@ function App() {
 
       {contactOpen && <ContactModal content={content} onClose={() => setContactOpen(false)} onSent={() => setSent(true)} sent={sent} />}
       {adminOpen && <AdminPanel content={content} setContent={setContent} onClose={() => setAdminOpen(false)} />}
+      {dashboardOpen && <SmartHomeDashboard onExit={() => setDashboardOpen(false)} />}
     </div>
   );
+}
+
+function SmartHomeDashboard({ onExit }) {
+  const [accounts, setAccounts] = useState(() => JSON.parse(localStorage.getItem('smarttech-accounts') || '[]'));
+  const [account, setAccount] = useState(null);
+  const [authMode, setAuthMode] = useState('signin');
+  const [authError, setAuthError] = useState('');
+  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
+  const [devices, setDevices] = useState([]);
+  const [room, setRoom] = useState('All rooms');
+  const [showAdd, setShowAdd] = useState(false);
+  const [newDevice, setNewDevice] = useState({ name: '', room: 'Living room', type: 'Lighting' });
+
+  const starterDevices = [
+    { id: 'light-living', name: 'Living room lights', room: 'Living room', type: 'Lighting', icon: SparklesIcon, active: true, value: '72%' },
+    { id: 'climate', name: 'Climate control', room: 'Living room', type: 'Climate', icon: BoltIcon, active: true, value: '23°C' },
+    { id: 'front-door', name: 'Front door lock', room: 'Entryway', type: 'Security', icon: LockClosedIcon, active: false, value: 'Locked' },
+    { id: 'camera', name: 'Garden camera', room: 'Garden', type: 'Security', icon: ShieldCheckIcon, active: true, value: 'Monitoring' },
+  ];
+
+  const handleAuth = (event) => {
+    event.preventDefault();
+    const email = authForm.email.trim().toLowerCase();
+    if (!email || authForm.password.length < 6 || (authMode === 'signup' && !authForm.name.trim())) {
+      setAuthError(authMode === 'signup' ? 'Add your name and a password with at least 6 characters.' : 'Enter a valid email and password.');
+      return;
+    }
+    if (authMode === 'signup') {
+      if (accounts.some((item) => item.email === email)) {
+        setAuthError('An account already exists for this email.');
+        return;
+      }
+      const next = { id: email, name: authForm.name.trim(), email, password: authForm.password, devices: starterDevices };
+      const nextAccounts = [...accounts, next];
+      localStorage.setItem('smarttech-accounts', JSON.stringify(nextAccounts));
+      setAccounts(nextAccounts);
+      setAccount(next);
+      setDevices(starterDevices);
+      return;
+    }
+    const found = accounts.find((item) => item.email === email && item.password === authForm.password);
+    if (!found) {
+      setAuthError('We could not match that email and password.');
+      return;
+    }
+    setAccount(found);
+    setDevices(found.devices || starterDevices);
+  };
+
+  const persistDevices = (nextDevices) => {
+    setDevices(nextDevices);
+    if (!account) return;
+    const nextAccounts = accounts.map((item) => item.id === account.id ? { ...item, devices: nextDevices } : item);
+    setAccounts(nextAccounts);
+    setAccount({ ...account, devices: nextDevices });
+    localStorage.setItem('smarttech-accounts', JSON.stringify(nextAccounts));
+  };
+
+  const toggleDevice = (id) => persistDevices(devices.map((device) => device.id === id ? { ...device, active: !device.active } : device));
+  const addDevice = (event) => {
+    event.preventDefault();
+    if (!newDevice.name.trim()) return;
+    const icon = newDevice.type === 'Security' ? ShieldCheckIcon : newDevice.type === 'Climate' ? BoltIcon : SparklesIcon;
+    persistDevices([...devices, { ...newDevice, id: `${Date.now()}`, icon, active: false, value: newDevice.type === 'Climate' ? '22°C' : 'Ready' }]);
+    setNewDevice({ name: '', room: 'Living room', type: 'Lighting' });
+    setShowAdd(false);
+  };
+
+  if (!account) {
+    return <div className="smart-home-app"><div className="smart-home-auth"><button className="dashboard-exit" onClick={onExit}><XMarkIcon /> Back to SmartTech</button><div className="smart-home-logo"><span><HomeModernIcon /></span><b>Smart<span>Home</span></b></div><div className="auth-card"><div className="eyebrow">Your connected home</div><h1>{authMode === 'signin' ? 'Welcome home.' : 'Create your home.'}</h1><p>Manage lighting, climate, security, and routines from one calm, simple dashboard.</p><form onSubmit={handleAuth}><label>{authMode === 'signup' && 'Full name'}{authMode === 'signup' && <input value={authForm.name} onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })} placeholder="Alex Morgan" />}</label><label>Email address<input required type="email" value={authForm.email} onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} placeholder="you@example.com" /></label><label>Password<input required type="password" value={authForm.password} onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })} placeholder="At least 6 characters" /></label>{authError && <div className="auth-error">{authError}</div>}<button className="button button-accent auth-submit">{authMode === 'signin' ? 'Sign in' : 'Create account'} <ArrowRightIcon /></button></form><button className="auth-switch" onClick={() => { setAuthMode(authMode === 'signin' ? 'signup' : 'signin'); setAuthError(''); }}>{authMode === 'signin' ? 'New to SmartHome? Create an account' : 'Already have an account? Sign in'}</button></div><small className="auth-note">Demo accounts are stored only in this browser. Add a secure backend before using real customer data.</small></div></div>;
+  }
+
+  const visibleDevices = room === 'All rooms' ? devices : devices.filter((device) => device.room === room);
+  const rooms = ['All rooms', ...new Set(devices.map((device) => device.room))];
+  const activeCount = devices.filter((device) => device.active).length;
+  return <div className="smart-home-app dashboard-shell"><aside className="dashboard-sidebar"><button className="dashboard-brand" onClick={onExit}><span><HomeModernIcon /></span><b>Smart<span>Home</span></b></button><div className="dashboard-welcome"><span className="profile-avatar">{account.name.slice(0, 1).toUpperCase()}</span><div><strong>{account.name}</strong><small>Personal home</small></div></div><nav className="dashboard-nav"><button className="dashboard-nav-active"><HomeModernIcon /> Overview</button><button><SparklesIcon /> Automations <span>3</span></button><button><ShieldCheckIcon /> Security</button><button><BoltIcon /> Energy usage</button><button><Cog6ToothIcon /> Settings</button></nav><button className="dashboard-signout" onClick={() => setAccount(null)}><ArrowRightIcon /> Sign out</button></aside><main className="dashboard-main"><div className="dashboard-topbar"><div><span className="dashboard-kicker">Tuesday, October 28</span><h1>Good morning, {account.name.split(' ')[0]}.</h1></div><div className="dashboard-actions"><button className="dashboard-icon-button"><EnvelopeIcon /></button><button className="dashboard-profile">{account.name.slice(0, 1).toUpperCase()}</button></div></div><section className="dashboard-hero-card"><div><span className="status-pill"><i /> Home is secure</span><h2>Everything is<br /><em>just right.</em></h2><p>{activeCount} of {devices.length} devices are active across your home.</p></div><div className="home-orbit-graphic"><HomeModernIcon /><span>23°</span><small>Comfortable</small></div></section><div className="dashboard-section-heading"><div><span className="dashboard-kicker">Your devices</span><h2>Control center</h2></div><button className="dashboard-add-button" onClick={() => setShowAdd(true)}>+ Add device</button></div><div className="room-tabs">{rooms.map((item) => <button className={room === item ? 'room-tab-active' : ''} key={item} onClick={() => setRoom(item)}>{item}</button>)}</div><div className="device-grid">{visibleDevices.map((device) => { const Icon = device.icon || SparklesIcon; return <article className={`device-card ${device.active ? 'device-active' : ''}`} key={device.id}><div className="device-card-top"><span className="device-icon"><Icon /></span><button className={`device-toggle ${device.active ? 'toggle-on' : ''}`} onClick={() => toggleDevice(device.id)} aria-label={`Turn ${device.name} ${device.active ? 'off' : 'on'}`}><i /></button></div><span className="device-room">{device.room}</span><h3>{device.name}</h3><div className="device-value">{device.active ? device.value : 'Offline'} <small>{device.type}</small></div></article>; })}</div><div className="dashboard-lower-grid"><section className="routine-card"><div className="dashboard-section-heading"><div><span className="dashboard-kicker">Automation</span><h2>Routines</h2></div><ChevronDownIcon /></div>{[['Good morning', 'Lights on · Climate 23°C', true], ['Movie night', 'Lights dim · Doors locked', false], ['Good night', 'Everything off · Security on', false]].map(([title, detail, on]) => <div className="routine-row" key={title}><span className="routine-icon"><SparklesIcon /></span><div><strong>{title}</strong><small>{detail}</small></div><button className={`device-toggle ${on ? 'toggle-on' : ''}`}><i /></button></div>)}</section><section className="maintenance-card"><div className="dashboard-section-heading"><div><span className="dashboard-kicker">Keep things running</span><h2>Maintenance</h2></div><WrenchScrewdriverIcon /></div><div className="maintenance-item"><span className="maintenance-good"><CheckCircleIcon /></span><div><strong>Air filter</strong><small>Last changed 18 days ago</small></div><span className="maintenance-date">42 days left</span></div><div className="maintenance-item"><span className="maintenance-warn"><ClipboardDocumentListIcon /></span><div><strong>Security check</strong><small>Schedule a system test</small></div><button>Schedule</button></div></section></div></main>{showAdd && <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && setShowAdd(false)}><div className="modal-card add-device-card"><button className="modal-close" onClick={() => setShowAdd(false)}><XMarkIcon /></button><div className="eyebrow">Expand your home</div><h2>Add a device</h2><form onSubmit={addDevice}><label>Device name<input required value={newDevice.name} onChange={(e) => setNewDevice({ ...newDevice, name: e.target.value })} placeholder="Kitchen lights" /></label><label>Room<select value={newDevice.room} onChange={(e) => setNewDevice({ ...newDevice, room: e.target.value })}><option>Living room</option><option>Bedroom</option><option>Kitchen</option><option>Entryway</option><option>Garden</option></select></label><label>Type<select value={newDevice.type} onChange={(e) => setNewDevice({ ...newDevice, type: e.target.value })}><option>Lighting</option><option>Climate</option><option>Security</option></select></label><button className="button button-accent form-submit">Add to dashboard <ArrowRightIcon /></button></form></div></div>}</div>;
 }
 
 function ContactModal({ content, onClose, onSent, sent }) {
